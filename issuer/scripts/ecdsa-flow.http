@@ -1,0 +1,34 @@
+### ECDSA flow
+
+### 1. Create ECDSA credential request
+POST http://localhost:8080/api/credentials/requests
+Content-Type: application/json
+
+{
+  "credentialType": "UniversityDegree",
+  "claims": {
+    "first_name": "Ivan",
+    "last_name": "Petrenko",
+    "birth_date": "2000-01-01",
+    "student_id": "12345",
+    "graduation_year": "2024",
+    "faculty": "Computer Science",
+    "degree": "Bachelor"
+  }
+}
+
+### 2. Check pending requests
+GET http://localhost:8080/api/credentials/requests
+
+### 3. Approve ECDSA request
+POST http://localhost:8080/api/credentials/requests/1/approve
+
+### 4. Check approved requests
+GET http://localhost:8080/api/credentials/requests?status=APPROVED
+
+### 5. Verify request in detail
+GET http://localhost:8080/api/credentials/requests/1
+
+
+
+

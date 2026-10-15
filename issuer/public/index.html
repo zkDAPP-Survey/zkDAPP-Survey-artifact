@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZkIssuer Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="login-screen" class="login-container hidden">
+        <div class="login-box">
+            <div class="login-logo-container">
+                <img src="logo.png" alt="ZkIssuer Logo">
+                <span class="login-logo-text">ZkIssuer</span>
+            </div>
+            <h2>Admin Login</h2>
+            <div id="login-error" class="error-message"></div>
+            <form id="login-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="sidebar" class="hidden">
+        <div class="logo-container">
+            <img src="logo.png" alt="ZkIssuer Logo">
+            <span class="logo-text">ZkIssuer</span>
+        </div>
+        <nav>
+            <ul>
+                <li>
+                    <button id="nav-requests-btn">
+                        <i class="fas fa-file-invoice"></i> Requests
+                    </button>
+                </li>
+                <li>
+                    <button id="nav-types-btn">
+                        <i class="fas fa-layer-group"></i> Schemes
+                    </button>
+                </li>
+            </ul>
+        </nav>
+        <button id="logout-button">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <main id="main-content" class="hidden">
+        <div id="app"></div>
+    </main>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

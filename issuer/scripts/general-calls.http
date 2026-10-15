@@ -1,0 +1,94 @@
+### ZkIssuer API smoke checks
+### Use this file in JetBrains HTTP Client. Run top-to-bottom.
+
+@baseUrl = http://localhost:8080
+#@baseUrl = https://issuer.example.org
+
+### 0) Health
+GET {{baseUrl}}/health
+
+### 1) Create credential type
+POST {{baseUrl}}/api/credentials/types
+Content-Type: application/json
+
+{
+  "typeName": "ResidencePermit",
+  "requiredClaimKeys": ["first_name", "last_name", "permit_number"]
+}
+
+### 1.1) Create credential type
+POST {{baseUrl}}/api/credentials/types
+Content-Type: application/json
+
+{
+  "typeName": "UniversityDegree",
+  "requiredClaimKeys": ["first_name", "last_name", "birth_date", "student_id", "graduation_year", "faculty", "degree"]
+}
+
+### 2) List all credential types
+GET {{baseUrl}}/api/credentials/types
+
+### 3) List credential type names only
+GET {{baseUrl}}/api/credentials/types/names
+
+### 4) Get one credential type by name
+GET {{baseUrl}}/api/credentials/types/ResidencePermit
+
+### 5) Head check for one credential type
+HEAD {{baseUrl}}/api/credentials/types/ResidencePermit
+
+### 6) Patch credential type (add required key)
+PATCH {{baseUrl}}/api/credentials/types/ResidencePermit
+Content-Type: application/json
+
+{
+  "requiredClaimKeys": ["first_name", "last_name", "permit_number", "country_code"]
+}
+
+### 7) Create credential request (works when VALIDATE_CREDENTIAL_TYPE=false)
+### Copy transactionId from response.
+POST {{baseUrl}}/api/credentials/requests
+Content-Type: application/json
+
+{
+  "credentialType": "ResidencePermit",
+  "claims": {
+    "first_name": "Maksym",
+    "last_name": "Hnatov",
+    "permit_number": "RP-2026-551",
+    "country_code": "UA"
+  }
+}
+
+### 8) Poll credential offer by transaction id (replace TXN-...)
+GET {{baseUrl}}/api/credentials/offers/TXN-940f0c7d-74ae-4a80-a6a5-44ebbf5ffacf
+
+### 9) Create credential request with missing claim
+### Expected:
+### - 202 if VALIDATE_CREDENTIAL_TYPE=false
+### - 400 if VALIDATE_CREDENTIAL_TYPE=true
+POST {{baseUrl}}/api/credentials/requests
+Content-Type: application/json
+
+{
+  "credentialType": "ResidencePermit",
+  "claims": {
+    "first_name": "Maksym",
+    "last_name": "Hnatov"
+  }
+}
+
+### 10) List credential requests
+GET {{baseUrl}}/api/credentials/requests
+
+### 11) Approve request by id (replace 1 with real id)
+POST {{baseUrl}}/api/credentials/requests/3/approve
+
+### 12) Poll credential offer again (should contain credential token when APPROVED)
+GET {{baseUrl}}/api/credentials/offers/TXN-REPLACE_ME
+
+### 13) List approved requests
+GET {{baseUrl}}/api/credentials/requests?status=APPROVED
+
+### 14) Delete credential type
+DELETE {{baseUrl}}/api/credentials/types/ResidencePermit

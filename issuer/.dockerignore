@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+.idea
+.vscode
+npm-debug.log
+keys/*

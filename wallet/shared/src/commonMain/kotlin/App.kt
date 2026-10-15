@@ -1,0 +1,82 @@
+import androidx.compose.material3.ColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import at.asitplus.catchingUnwrapped
+import at.asitplus.wallet.app.common.ErrorService
+import at.asitplus.wallet.app.common.SessionService
+import at.asitplus.wallet.app.common.WalletMain
+import at.asitplus.wallet.app.common.dcapi.DCAPIInvocationData
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.MutableStateFlow
+import org.koin.compose.KoinApplication
+import org.koin.compose.koinInject
+import org.koin.core.module.Module
+import ui.navigation.WalletNavigation
+import ui.theme.WalletTheme
+import ui.viewmodels.authentication.PresentationStateModel
+
+/**
+ * Callback data for zkDAPP credential share requests
+ */
+data class ZkDAPPCallbackData(
+    val callbackUrl: String,
+    val requestId: String?,
+    val audience: String?,
+    val nonce: String?,
+    val requestedClaims: List<String>,
+    val credentialType: String?,
+    val sendResponse: (callbackUrl: String, requestId: String?, presentation: String?) -> Boolean,
+)
+
+/**
+ * Global variables which help to channel information from platform-specific code
+ * to compose whenever the app gets called from native code, such as via an associated domain,
+ * NFC or the DC API
+ */
+object Globals {
+    var appLink = MutableStateFlow<String?>(null)
+    var dcapiInvocationData = MutableStateFlow<DCAPIInvocationData?>(null)
+    var presentationStateModel = MutableStateFlow<PresentationStateModel?>(null)
+    var walletMain = MutableStateFlow<WalletMain?>(null)
+    var zkdappCallbackData = MutableStateFlow<ZkDAPPCallbackData?>(null)
+}
+
+internal object AppTestTags {
+    const val rootScaffold = "rootScaffold"
+}
+
+@Composable
+fun App(koinModule: Module) {
+    KoinApplication({
+        modules(koinModule)
+    }) {
+        val koinScope = koinInject<SessionService>().scope.collectAsState().value
+        catchingUnwrapped {
+            val walletMain: WalletMain = koinInject(scope = koinScope)
+            Globals.walletMain.value = walletMain
+
+            LifecycleEventEffect(Lifecycle.Event.ON_CREATE) {
+                Napier.d("Lifecycle.Event.ON_CREATE")
+                walletMain.updateCheck()
+            }
+
+            LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+                Napier.d("Lifecycle.Event.ON_RESUME")
+            }
+        }.onFailure {
+            val errorService: ErrorService = koinInject(scope = koinScope)
+            errorService.emit(it)
+        }
+
+        WalletTheme {
+            WalletNavigation(koinScope = koinScope)
+        }
+    }
+}
+
+expect fun getPlatformName(): String
+
+@Composable
+expect fun getColorScheme(): ColorScheme

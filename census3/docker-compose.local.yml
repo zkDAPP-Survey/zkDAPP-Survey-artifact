@@ -1,0 +1,12 @@
+services:
+  census3:
+    build: .
+    env_file: ".env"
+    restart: unless-stopped
+    ports:
+      - "${CENSUS3_PORT:-7788}:${CENSUS3_PORT:-7788}"
+    volumes:
+      - census3-local:/app/data
+
+volumes:
+  census3-local: {}
